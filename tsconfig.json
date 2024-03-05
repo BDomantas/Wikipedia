@@ -14,7 +14,8 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "declaration": true,
-        "useUnknownInCatchVariables": false
+        "useUnknownInCatchVariables": false,
+        "skipLibCheck": true,
     },
     "include": [
         "source"

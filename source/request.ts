@@ -1,4 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import fetchAdapter from "@haverstack/axios-fetch-adapter";
+
 import { wikiError } from './errors';
 
 let API_URL = 'https://en.wikipedia.org/w/api.php?',
@@ -8,6 +10,7 @@ let API_URL = 'https://en.wikipedia.org/w/api.php?',
     // RATE_LIMIT_LAST_CALL = undefined,
     USER_AGENT = 'wikipedia (https://github.com/dopecodez/Wikipedia/)';
 
+const client = axios.create({ adapter: fetchAdapter });
 async function callAPI(url: string) {
   const options: AxiosRequestConfig = {
     headers: {
@@ -15,7 +18,7 @@ async function callAPI(url: string) {
     },
   };
   try {
-    const { data } = await axios.get(url, options);
+    const { data } = await client.get(url, options);
     return data;
   } catch (error) {
     throw new wikiError(error);
@@ -37,7 +40,7 @@ async function makeRequest(params: any, redirect = true): Promise<any> {
     Object.keys(search).forEach(key => {
         searchParam += `${key}=${search[key]}&`;
     });
-    
+
     return await callAPI(encodeURI(API_URL + searchParam));
 }
 
@@ -46,7 +49,7 @@ export async function makeRestRequest(path: string, redirect = true): Promise<an
     if (!redirect) {
         path += '?redirect=false';
     }
-    
+
     return await callAPI(encodeURI(REST_API_URL + path));
 }
 

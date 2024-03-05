@@ -4,8 +4,8 @@ import Page, {
     intro, images, html, content, categories, links, coordinates, langLinks,
     references, infobox, tables, summary, related, media, mobileHtml, pdf, citation
 } from './page';
-import { coordinatesResult, eventResult, featuredContentResult, geoSearchResult, imageResult, langLinksResult, languageResult, 
-    mobileSections, relatedResult, 
+import { coordinatesResult, eventResult, featuredContentResult, geoSearchResult, imageResult, langLinksResult, languageResult,
+    mobileSections, relatedResult,
     title, wikiMediaResult, wikiSearchResult, wikiSummary, notFound } from './resultTypes';
 import {
     categoriesError,
@@ -25,7 +25,7 @@ import { getCurrentDay, getCurrentMonth, getCurrentYear, setPageId, setPageIdOrT
  * Internally calls wiki.page
  *
  */
-const wiki = async (title: string, pageOptions?: pageOptions): Promise<Page> => {
+export const wiki = async (title: string, pageOptions?: pageOptions): Promise<Page> => {
     return wiki.page(title, pageOptions);
 }
 
@@ -61,7 +61,7 @@ wiki.search = async (query: string, searchOptions?: searchOptions): Promise<wiki
 
 /**
  * Returns the page for a given title or string
- * 
+ *
  * @remarks
  * Call this method to get the basic info for page and also to preload any params you might use in future
  *
@@ -177,7 +177,7 @@ wiki.summary = async (title: string, pageOptions?: pageOptions): Promise<wikiSum
  * @param title - The title or page Id of the page
  * @param pageOptions - Whether to redirect in case of 302
  * @returns The html content as string
- * 
+ *
  * @beta
  */
 wiki.html = async (title: string, pageOptions?: pageOptions): Promise<string> => {
@@ -237,7 +237,7 @@ wiki.categories = async (title: string, listOptions?: listOptions): Promise<Arra
 }
 
 /**
- * Returns summaries for 20 pages related to the given page. Summaries include page title, namespace 
+ * Returns summaries for 20 pages related to the given page. Summaries include page title, namespace
  * and id along with short text description of the page and a thumbnail.
  *
  * @remarks
@@ -246,7 +246,7 @@ wiki.categories = async (title: string, listOptions?: listOptions): Promise<Arra
  * @param title - The title or page Id of the page
  * @param pageOptions - Whether to redirect in case of 302
  * @returns The related pages and summary as an array of {@link wikiSummary | wikiSummary}
- * 
+ *
  * @experimental
  */
 wiki.related = async (title: string, pageOptions?: pageOptions): Promise<relatedResult> => {
@@ -457,7 +457,7 @@ wiki.setLang = (language: string): string => {
 }
 
 /**
- * Returns the pages with coordinates near the geo search coordinates 
+ * Returns the pages with coordinates near the geo search coordinates
  *
  * @remarks
  * Latitude and longitude should be valid values
@@ -573,7 +573,7 @@ wiki.random = async (format?: randomFormats): Promise<wikiSummary | title | rela
 
 /**
  * Returns mobile-optimised HTML of a page
- * 
+ *
  * @param title - The title of the page to query
  * @param pageOptions - Whether to redirect in case of 302
  * @returns Returns HTML string
@@ -592,7 +592,7 @@ wiki.mobileHtml = async (title: string, pageOptions?: pageOptions): Promise<notF
 
 /**
  * Returns pdf of a given page
- * 
+ *
  * @param title - The title of the page to query
  * @param pdfOptions - {@link pdfOptions | pdfOptions }
  * @returns Returns pdf format
@@ -611,7 +611,7 @@ wiki.mobileHtml = async (title: string, pageOptions?: pageOptions): Promise<notF
 
 /**
  * Returns citation of a given page, or query string
- * 
+ *
  * @param format - the format of the citation result
  * @param query - url or query string
  * @param language - if you want lanuage enabled results

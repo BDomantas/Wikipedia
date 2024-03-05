@@ -3,3 +3,10 @@ dist
 coverage
 test.js
 .DS_Store
+/.idea/.gitignore
+/.idea/jsLibraryMappings.xml
+/.idea/modules.xml
+/pnpm-lock.yaml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
+/.idea/Wikipedia.iml

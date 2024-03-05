@@ -1,10 +1,34 @@
-import { categoriesError, contentError, coordinatesError, htmlError, imageError, wikiError, pdfError,
-    infoboxError, introError, linksError, mediaError, preloadError, relatedError, summaryError, citationError } from './errors';
-import request, { makeRestRequest, returnRestUrl } from './request';
-import { coordinatesResult, imageResult, langLinksResult, notFound, pageResult, relatedResult, wikiMediaResult, wikiSummary } from './resultTypes';
-import { setPageId, setPageIdOrTitleParam } from './utils';
-import { citationFormat, listOptions, pageOptions, pdfOptions } from './optionTypes';
-import { MSGS } from './messages';
+import {
+    categoriesError,
+    citationError,
+    contentError,
+    coordinatesError,
+    htmlError,
+    imageError,
+    infoboxError,
+    introError,
+    linksError,
+    mediaError,
+    pdfError,
+    preloadError,
+    relatedError,
+    summaryError,
+    wikiError
+} from './errors';
+import request, {makeRestRequest, returnRestUrl} from './request';
+import {
+    coordinatesResult,
+    imageResult,
+    langLinksResult,
+    notFound,
+    pageResult,
+    relatedResult,
+    wikiMediaResult,
+    wikiSummary
+} from './resultTypes';
+import {setPageId, setPageIdOrTitleParam} from './utils';
+import {citationFormat, listOptions, pageOptions, pdfOptions} from './optionTypes';
+import {MSGS} from './messages';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const infoboxParser = require('infobox-parser');
@@ -69,7 +93,7 @@ export class Page {
     public intro = async (pageOptions?: pageOptions): Promise<string> => {
         try {
             if (!this._intro) {
-                const response = await intro(this.pageid.toString(), pageOptions?.redirect);
+                const response = await intro(this.pageid.toString(), this.pagelanguage.toString(), pageOptions?.redirect);
                 this._intro = response;
             }
             return this._intro;
@@ -91,7 +115,7 @@ export class Page {
     public images = async (listOptions?: listOptions): Promise<Array<imageResult>> => {
         try {
             if (!this._images) {
-                const result = await images(this.pageid.toString(), listOptions);
+                const result = await images(this.pageid.toString(), this.pagelanguage.toString(), listOptions);
                 this._images = result;
             }
             return this._images;
@@ -109,12 +133,12 @@ export class Page {
      * @param title - The title or page Id of the page
      * @param redirect - Whether to redirect in case of 302
      * @returns The summary of the page as {@link wikiSummary | wikiSummary}
-     * 
+     *
      */
     public summary = async (pageOptions?: pageOptions): Promise<wikiSummary> => {
         try {
             if (!this._summary) {
-                const result = await summary(this.title, pageOptions?.redirect);
+                const result = await summary(this.title, this.pagelanguage.toString(), pageOptions?.redirect);
                 this._summary = result;
             }
             return this._summary;
@@ -132,13 +156,13 @@ export class Page {
      * @param title - The title or page Id of the page
      * @param redirect - Whether to redirect in case of 302
      * @returns The html content as string
-     * 
+     *
      * @beta
      */
     public html = async (pageOptions?: pageOptions): Promise<string> => {
         try {
             if (!this._html) {
-                const result = await html(this.pageid.toString(), pageOptions?.redirect);
+                const result = await html(this.pageid.toString(), this.pagelanguage.toString(), pageOptions?.redirect);
                 this._html = result;
             }
             return this._html;
@@ -160,7 +184,7 @@ export class Page {
     public content = async (pageOptions?: pageOptions): Promise<string> => {
         try {
             if (!this._content) {
-                const result = await content(this.pageid.toString(), pageOptions?.redirect);
+                const result = await content(this.pageid.toString(), this.pagelanguage.toString(), pageOptions?.redirect);
                 this.parentid = result.ids.parentId;
                 this.revid = result.ids.revId;
                 this._content = result.result;
@@ -184,7 +208,7 @@ export class Page {
     public categories = async (listOptions?: listOptions): Promise<Array<string>> => {
         try {
             if (!this._categories) {
-                const result = await categories(this.pageid.toString(), listOptions);
+                const result = await categories(this.pageid.toString(), this.pagelanguage.toString(), listOptions);
                 this._categories = result;
             }
             return this._categories;
@@ -206,7 +230,7 @@ export class Page {
     public links = async (listOptions?: listOptions): Promise<Array<string>> => {
         try {
             if (!this._links) {
-                const result = await links(this.pageid.toString(), listOptions);
+                const result = await links(this.pageid.toString(), this.pagelanguage.toString(), listOptions);
                 this._links = result;
             }
             return this._links;
@@ -228,7 +252,7 @@ export class Page {
     public references = async (listOptions?: listOptions): Promise<Array<string>> => {
         try {
             if (!this._references) {
-                const result = await references(this.pageid.toString(), listOptions);
+                const result = await references(this.pageid.toString(), this.pagelanguage.toString(), listOptions);
                 this._references = result;
             }
             return this._references;
@@ -250,7 +274,7 @@ export class Page {
     public coordinates = async (pageOptions?: pageOptions): Promise<coordinatesResult> => {
         try {
             if (!this._coordinates) {
-                const result = await coordinates(this.pageid.toString(), pageOptions?.redirect);
+                const result = await coordinates(this.pageid.toString(), this.pagelanguage.toString(), pageOptions?.redirect);
                 this._coordinates = result;
             }
             return this._coordinates;
@@ -272,7 +296,7 @@ export class Page {
     public langLinks = async (listOptions?: listOptions): Promise<Array<langLinksResult>> => {
         try {
             if (!this._langLinks) {
-                const result = await langLinks(this.pageid.toString(), listOptions);
+                const result = await langLinks(this.pageid.toString(), this.pagelanguage.toString(), listOptions);
                 this._langLinks = result;
             }
             return this._langLinks;
@@ -294,7 +318,7 @@ export class Page {
     public infobox = async (pageOptions?: pageOptions): Promise<any> => {
         try {
             if (!this._infobox) {
-                const result = await infobox(this.pageid.toString(), pageOptions?.redirect);
+                const result = await infobox(this.pageid.toString(), this.pagelanguage.toString(),  pageOptions?.redirect);
                 this._infobox = result;
             }
             return this._infobox;
@@ -316,7 +340,7 @@ export class Page {
     public tables = async (pageOptions?: pageOptions): Promise<Array<any>> => {
         try {
             if (!this._tables) {
-                const result = await tables(this.pageid.toString(), pageOptions?.redirect);
+                const result = await tables(this.pageid.toString(), this.pagelanguage.toString(), pageOptions?.redirect);
                 this._tables = result;
             }
             return this._tables;
@@ -326,7 +350,7 @@ export class Page {
     }
 
     /**
-     * Returns summaries for 20 pages related to the given page. Summaries include page title, namespace 
+     * Returns summaries for 20 pages related to the given page. Summaries include page title, namespace
      * and id along with short text description of the page and a thumbnail.
      *
      * @remarks
@@ -335,13 +359,13 @@ export class Page {
      * @param title - The title or page Id of the page
      * @param redirect - Whether to redirect in case of 302
      * @returns The related pages and summary as an array of {@link wikiSummary | wikiSummary}
-     * 
+     *
      * @experimental
      */
     public related = async (pageOptions?: pageOptions): Promise<relatedResult> => {
         try {
             if (!this._related) {
-                const result = await related(this.title, pageOptions?.redirect);
+                const result = await related(this.title, this.pagelanguage.toString(), pageOptions?.redirect);
                 this._related = result;
             }
             return this._related;
@@ -351,7 +375,7 @@ export class Page {
     }
 
     /**
-     * Gets the list of media items (images, audio, and video) in the 
+     * Gets the list of media items (images, audio, and video) in the
      * order in which they appear on a given wiki page.
      *
      * @remarks
@@ -360,13 +384,13 @@ export class Page {
      * @param title - The title or page Id of the page
      * @param redirect - Whether to redirect in case of 302
      * @returns The related pages and summary as an array of {@link wikiMediaResult | wikiMediaResult}
-     * 
+     *
      * @experimental
      */
     public media = async (pageOptions?: pageOptions): Promise<wikiMediaResult> => {
         try {
             if (!this._media) {
-                const result = await media(this.title, pageOptions?.redirect);
+                const result = await media(this.title,  this.pagelanguage.toString(), pageOptions?.redirect);
                 this._media = result;
             }
             return this._media;
@@ -377,7 +401,7 @@ export class Page {
 
     /**
     * Returns mobile-optimised HTML of a page
-    * 
+    *
     * @param title - The title of the page to query
     * @param redirect - Whether to redirect in case of 302
     * @returns Returns HTML string
@@ -385,7 +409,7 @@ export class Page {
     public mobileHtml = async (pageOptions?: pageOptions): Promise<notFound | string> => {
         try {
             if (!this._mobileHtml) {
-                const result = await mobileHtml(this.title, pageOptions?.redirect);
+                const result = await mobileHtml(this.title, this.pagelanguage.toString(), pageOptions?.redirect);
                 this._mobileHtml = result;
             }
             return this._mobileHtml;
@@ -396,13 +420,13 @@ export class Page {
 
     /**
      * Returns pdf of a given page
-     * 
+     *
      * @param pdfOptions - {@link pdfOptions | pdfOptions }
      * @returns Returns path string
      */
     public pdf = async (pdfOptions?: pdfOptions): Promise<string> => {
         try {
-            const result = await pdf(this.title, pdfOptions)
+            const result = await pdf(this.title, this.pagelanguage.toString(), pdfOptions)
 
             return result;
         } catch (error) {
@@ -430,7 +454,7 @@ export class Page {
  * @param listOptions - {@link listOptions | listOptions }
  * @returns an array of imageResult {@link imageResult | imageResult }
  */
-export const images = async (title: string, listOptions?: listOptions): Promise<Array<imageResult>> => {
+export const images = async (title: string, lang?: string, listOptions?: listOptions): Promise<Array<imageResult>> => {
     try {
         let imageOptions: any = {
             generator: 'images',
@@ -439,7 +463,7 @@ export const images = async (title: string, listOptions?: listOptions): Promise<
             iiprop: 'url'
         }
         imageOptions = setPageIdOrTitleParam(imageOptions, title);
-        const response = await request(imageOptions, listOptions?.redirect);
+        const response = await request(imageOptions, lang, listOptions?.redirect);
         const images = [];
         const imageKeys = Object.keys(response.query.pages);
         for (const image of imageKeys) {
@@ -460,10 +484,11 @@ export const images = async (title: string, listOptions?: listOptions): Promise<
  * Called in page object and also through wiki default object
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide in which wiki to search
  * @param redirect - Whether to redirect in case of 302
  * @returns The intro string
  */
-export const intro = async (title: string, redirect = true): Promise<string> => {
+export const intro = async (title: string, lang?: string, redirect = true): Promise<string> => {
     try {
         let introOptions: any = {
             prop: 'extracts',
@@ -471,7 +496,7 @@ export const intro = async (title: string, redirect = true): Promise<string> => 
             exintro: '',
         }
         introOptions = setPageIdOrTitleParam(introOptions, title);
-        const response = await request(introOptions, redirect);
+        const response = await request(introOptions, lang, redirect);
         const pageId = setPageId(introOptions, response);
         return response?.query?.pages[pageId].extract;
     } catch (error) {
@@ -486,12 +511,13 @@ export const intro = async (title: string, redirect = true): Promise<string> => 
  * Called in page object and also through wiki default object
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns The html content as string
- * 
+ *
  * @beta
  */
-export const html = async (title: string, redirect = true): Promise<string> => {
+export const html = async (title: string, lang?: string, redirect = true): Promise<string> => {
     try {
         let htmlOptions: any = {
             'prop': 'revisions',
@@ -500,7 +526,7 @@ export const html = async (title: string, redirect = true): Promise<string> => {
             'rvparse': ''
         }
         htmlOptions = setPageIdOrTitleParam(htmlOptions, title);
-        const response = await request(htmlOptions, redirect);
+        const response = await request(htmlOptions, lang, redirect);
         const pageId = setPageId(htmlOptions, response);
         return response.query.pages[pageId].revisions[0]['*'];
     } catch (error) {
@@ -515,10 +541,11 @@ export const html = async (title: string, redirect = true): Promise<string> => {
  * Called in page object and also through wiki default object
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns The plain text as string and the parent and revision ids
  */
-export const content = async (title: string, redirect = true): Promise<any> => {
+export const content = async (title: string, lang?: string, redirect = true): Promise<any> => {
     try {
         let contentOptions: any = {
             'prop': 'extracts|revisions',
@@ -526,7 +553,7 @@ export const content = async (title: string, redirect = true): Promise<any> => {
             'rvprop': 'ids'
         }
         contentOptions = setPageIdOrTitleParam(contentOptions, title);
-        const response = await request(contentOptions, redirect);
+        const response = await request(contentOptions, lang, redirect);
         const pageId = setPageId(contentOptions, response);
         const result = response['query']['pages'][pageId]['extract'];
         const ids = {
@@ -552,14 +579,14 @@ export const content = async (title: string, redirect = true): Promise<any> => {
  * @param listOptions - {@link listOptions | listOptions }
  * @returns The categories as an array of string
  */
-export const categories = async (title: string, listOptions?: listOptions): Promise<Array<string>> => {
+export const categories = async (title: string, lang?: string,  listOptions?: listOptions): Promise<Array<string>> => {
     try {
         let categoryOptions: any = {
             prop: 'categories',
             pllimit: listOptions?.limit,
         }
         categoryOptions = setPageIdOrTitleParam(categoryOptions, title);
-        const response = await request(categoryOptions, listOptions?.redirect);
+        const response = await request(categoryOptions, lang, listOptions?.redirect);
         const pageId = setPageId(categoryOptions, response);
         return response.query.pages[pageId].categories.map((category: any) => category.title)
     } catch (error) {
@@ -577,7 +604,7 @@ export const categories = async (title: string, listOptions?: listOptions): Prom
  * @param listOptions - {@link listOptions | listOptions }
  * @returns The links as an array of string
  */
-export const links = async (title: string, listOptions?: listOptions): Promise<Array<string>> => {
+export const links = async (title: string, lang?: string, listOptions?: listOptions): Promise<Array<string>> => {
     try {
         let linksOptions: any = {
             prop: 'links',
@@ -585,7 +612,7 @@ export const links = async (title: string, listOptions?: listOptions): Promise<A
             pllimit: listOptions?.limit || 'max',
         }
         linksOptions = setPageIdOrTitleParam(linksOptions, title);
-        const response = await request(linksOptions, listOptions?.redirect);
+        const response = await request(linksOptions, lang, listOptions?.redirect);
         const pageId = setPageId(linksOptions, response);
         const result = response.query.pages[pageId].links.map((link: any) => link.title)
         return result;
@@ -604,14 +631,14 @@ export const links = async (title: string, listOptions?: listOptions): Promise<A
  * @param listOptions - {@link listOptions | listOptions }
  * @returns The references as an array of string
  */
-export const references = async (title: string, listOptions?: listOptions): Promise<Array<string>> => {
+export const references = async (title: string, lang?: string, listOptions?: listOptions): Promise<Array<string>> => {
     try {
         let extLinksOptions: any = {
             prop: 'extlinks',
             ellimit: listOptions?.limit || 'max',
         }
         extLinksOptions = setPageIdOrTitleParam(extLinksOptions, title);
-        const response = await request(extLinksOptions, listOptions?.redirect);
+        const response = await request(extLinksOptions, lang, listOptions?.redirect);
         const pageId = setPageId(extLinksOptions, response);
         const result = response.query.pages[pageId].extlinks.map((link: any) => link['*'])
         return result;
@@ -627,16 +654,17 @@ export const references = async (title: string, listOptions?: listOptions): Prom
  * Called in page object and also through wiki default object
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns The coordinates as {@link coordinatesResult | coordinatesResult}
  */
-export const coordinates = async (title: string, redirect = true): Promise<coordinatesResult> => {
+export const coordinates = async (title: string, lang?: string, redirect = true): Promise<coordinatesResult> => {
     try {
         let coordinatesOptions: any = {
             prop: 'coordinates',
         }
         coordinatesOptions = setPageIdOrTitleParam(coordinatesOptions, title);
-        const response = await request(coordinatesOptions, redirect);
+        const response = await request(coordinatesOptions, lang, redirect);
         const pageId = setPageId(coordinatesOptions, response);
         const coordinates = response.query.pages[pageId].coordinates;
         return coordinates ? coordinates[0] : null;
@@ -655,7 +683,7 @@ export const coordinates = async (title: string, redirect = true): Promise<coord
  * @param listOptions - {@link listOptions | listOptions }
  * @returns The links as an array of {@link langLinksResult | langLinksResult }
  */
-export const langLinks = async (title: string, listOptions?: listOptions): Promise<Array<langLinksResult>> => {
+export const langLinks = async (title: string, lang?: string,  listOptions?: listOptions): Promise<Array<langLinksResult>> => {
     try {
         let languageOptions: any = {
             prop: 'langlinks',
@@ -663,7 +691,7 @@ export const langLinks = async (title: string, listOptions?: listOptions): Promi
             llprop: 'url'
         }
         languageOptions = setPageIdOrTitleParam(languageOptions, title);
-        const response = await request(languageOptions, listOptions?.redirect);
+        const response = await request(languageOptions, lang, listOptions?.redirect);
         const pageId = setPageId(languageOptions, response);
         const result = (response.query.pages[pageId].langlinks ?? []).map((link: any) => {
             return {
@@ -685,17 +713,18 @@ export const langLinks = async (title: string, listOptions?: listOptions): Promi
  * Called in page object and also through wiki default object
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns The info as JSON object
  */
-export const infobox = async (title: string, redirect = true): Promise<any> => {
+export const infobox = async (title: string, lang?: string, redirect = true): Promise<any> => {
     try {
         const infoboxOptions: any = {
             prop: 'revisions',
             rvprop: 'content',
             rvsection: 0
         }
-        const fullInfo = await rawInfo(title, infoboxOptions, redirect);
+        const fullInfo = await rawInfo(title, infoboxOptions, lang, redirect);
         const info = infoboxParser(fullInfo).general;
         return info;
     } catch (error) {
@@ -710,16 +739,17 @@ export const infobox = async (title: string, redirect = true): Promise<any> => {
  * Called in page object and also through wiki default object
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns The tables as arrays of JSON objects
  */
-export const tables = async (title: string, redirect = true): Promise<Array<any>> => {
+export const tables = async (title: string, lang?: string, redirect = true): Promise<Array<any>> => {
     try {
         const tableOptions: any = {
             prop: 'revisions',
             rvprop: 'content',
         }
-        const fullInfo = await rawInfo(title, tableOptions, redirect);
+        const fullInfo = await rawInfo(title, tableOptions, lang, redirect);
         const info = infoboxParser(fullInfo).tables;
         return info;
     } catch (error) {
@@ -734,14 +764,15 @@ export const tables = async (title: string, redirect = true): Promise<Array<any>
  * This is not exported and used internally
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
- * @returns The rawInfo of the page 
- * 
+ * @returns The rawInfo of the page
+ *
  */
-export const rawInfo = async (title: string, options: any, redirect = true): Promise<any> => {
+export const rawInfo = async (title: string, options: any, lang?: string,  redirect = true): Promise<any> => {
     try {
         options = setPageIdOrTitleParam(options, title);
-        const response = await request(options, redirect);
+        const response = await request(options, lang, redirect);
         if (!(response.query?.pages)) {
             throw new wikiError(MSGS.INFOBOX_NOT_EXIST);
         }
@@ -763,36 +794,37 @@ export const rawInfo = async (title: string, options: any, redirect = true): Pro
  * Called in page object and also through wiki default object
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns The summary of the page as {@link wikiSummary | wikiSummary}
  */
-export const summary = async (title: string, redirect = true): Promise<wikiSummary> => {
+export const summary = async (title: string, lang?: string, redirect = true): Promise<wikiSummary> => {
     try {
         const path = 'page/summary/' + title.replace(" ", "_");
-        const response = await makeRestRequest(path, redirect);
-        return response;
+        return await makeRestRequest(path, lang, redirect);
     } catch (error) {
         throw new summaryError(error);
     }
 }
 
 /**
- * Returns summaries for 20 pages related to the given page. Summaries include page title, namespace 
+ * Returns summaries for 20 pages related to the given page. Summaries include page title, namespace
  * and id along with short text description of the page and a thumbnail.
  *
  * @remarks
  * Called in page object and also through index
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns The related pages and summary as an array of {@link wikiSummary | wikiSummary}
- * 
+ *
  * @experimental
  */
-export const related = async (title: string, redirect = true): Promise<relatedResult> => {
+export const related = async (title: string, lang?: string, redirect = true): Promise<relatedResult> => {
     try {
         const path = 'page/related/' + title.replace(" ", "_");
-        const response = await makeRestRequest(path, redirect);
+        const response = await makeRestRequest(path, lang, redirect);
         return response;
     } catch (error) {
         throw new relatedError(error);
@@ -800,22 +832,23 @@ export const related = async (title: string, redirect = true): Promise<relatedRe
 }
 
 /**
- * Gets the list of media items (images, audio, and video) in the 
+ * Gets the list of media items (images, audio, and video) in the
  * order in which they appear on a given wiki page.
  *
  * @remarks
  * Called in page object and also through index
  *
  * @param title - The title or page Id of the page
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns The related pages and summary as an array of {@link wikiMediaResult | wikiMediaResult}
- * 
+ *
  * @experimental
  */
-export const media = async (title: string, redirect = true): Promise<wikiMediaResult> => {
+export const media = async (title: string, lang?: string,  redirect = true): Promise<wikiMediaResult> => {
     try {
         const path = 'page/media-list/' + title.replace(" ", "_");
-        const response = await makeRestRequest(path, redirect);
+        const response = await makeRestRequest(path, lang, redirect);
         return response;
     } catch (error) {
         throw new mediaError(error);
@@ -824,15 +857,16 @@ export const media = async (title: string, redirect = true): Promise<wikiMediaRe
 
 /**
  * Returns mobile-optimised HTML of a page
- * 
+ *
  * @param title - The title of the page to query
+ * @param lang - provide lang in which to search wiki
  * @param redirect - Whether to redirect in case of 302
  * @returns Returns HTML string
  */
-export const mobileHtml = async (title: string, redirect = true): Promise<notFound | string> => {
+export const mobileHtml = async (title: string, lang?: string, redirect = true): Promise<notFound | string> => {
     try {
         const path = `page/mobile-html/${title}`;
-        const result = await makeRestRequest(path, redirect);
+        const result = await makeRestRequest(path, lang, redirect);
         return result;
     } catch (error) {
         throw new htmlError(error);
@@ -841,18 +875,18 @@ export const mobileHtml = async (title: string, redirect = true): Promise<notFou
 
 /**
  * Returns pdf of a given page
- * 
+ *
  * @param title - The title of the page to query
  * @param pdfOptions - {@link pdfOptions | pdfOptions }
  * @returns Returns pdf format
  */
- export const pdf = async (title: string, pdfOptions?: pdfOptions): Promise<string> => {
+ export const pdf = async (title: string, lang?: string, pdfOptions?: pdfOptions): Promise<string> => {
     try {
         let path = `page/pdf/${title}`;
         pdfOptions?.format ? path += `/${pdfOptions.format}` : null;
         pdfOptions?.type ? path += `/${pdfOptions.type}` : null;
 
-        const result = returnRestUrl(path);
+        const result = returnRestUrl(path, lang);
         return result;
     } catch (error) {
         throw new pdfError(error);
@@ -861,7 +895,7 @@ export const mobileHtml = async (title: string, redirect = true): Promise<notFou
 
 /**
  * Returns citation of a given page, or query string
- * 
+ *
  * @param format - the format of the citation result
  * @param query - url or query string
  * @param language - if you want lanuage enabled results
@@ -874,8 +908,7 @@ export const citation = async (query: string, format?: citationFormat, language?
         path += `/${query}`;
         language ? path += `/${language}` : null;
 
-        const result = await makeRestRequest(path);
-        return result;
+        return await makeRestRequest(path, language);
     } catch (error) {
         throw new citationError(error);
    }

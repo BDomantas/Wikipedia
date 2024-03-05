@@ -48,7 +48,7 @@ wiki.search = async (query: string, searchOptions?: searchOptions): Promise<wiki
             'srsearch': query
         }
         searchOptions?.suggestion ? searchParams['srinfo'] = 'suggestion' : null;
-        const response = await request(searchParams);
+        const response = await request(searchParams, searchOptions?.lang);
         const result: wikiSearchResult = {
             results: response.query.search,
             suggestion: response.query.searchinfo ? response.query.searchinfo.suggestion : null
@@ -80,7 +80,7 @@ wiki.page = async (title: string, pageOptions?: pageOptions): Promise<Page> => {
             ppprop: 'disambiguation',
         }
         pageParams = setPageIdOrTitleParam(pageParams, title);
-        const response = await request(pageParams);
+        const response = await request(pageParams, pageOptions?.lang);
         let pageInfo = response.query.pages;
         const pageId = setPageId(pageParams, response);
         pageInfo = pageInfo[pageId];
@@ -117,7 +117,7 @@ wiki.intro = async (title: string, pageOptions?: pageOptions): Promise<string> =
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const result = await intro(title, pageOptions?.redirect);
+        const result = await intro(title, pageOptions?.lang, pageOptions?.redirect);
         return result;
     } catch (error) {
         throw new introError(error);
@@ -139,7 +139,7 @@ wiki.images = async (title: string, listOptions?: listOptions): Promise<Array<im
         if (listOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const result = await images(title, listOptions);
+        const result = await images(title, listOptions?.lang, listOptions);
         return result;
     } catch (error) {
         throw new imageError(error);
@@ -161,7 +161,7 @@ wiki.summary = async (title: string, pageOptions?: pageOptions): Promise<wikiSum
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const result = await summary(title, pageOptions?.redirect);
+        const result = await summary(title, pageOptions?.lang, pageOptions?.redirect);
         return result;
     } catch (error) {
         throw new summaryError(error);
@@ -185,7 +185,7 @@ wiki.html = async (title: string, pageOptions?: pageOptions): Promise<string> =>
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const result = await html(title, pageOptions?.redirect);
+        const result = await html(title, pageOptions?.lang, pageOptions?.redirect);
         return result;
     } catch (error) {
         throw new htmlError(error);
@@ -207,7 +207,7 @@ wiki.content = async (title: string, pageOptions?: pageOptions): Promise<string>
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await content(title, pageOptions?.redirect);
+        const response = await content(title, pageOptions?.lang, pageOptions?.redirect);
         return response.result;
     } catch (error) {
         throw new contentError(error);
@@ -229,7 +229,7 @@ wiki.categories = async (title: string, listOptions?: listOptions): Promise<Arra
         if (listOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await categories(title, listOptions);
+        const response = await categories(title, listOptions?.lang,  listOptions);
         return response;
     } catch (error) {
         throw new categoriesError(error);
@@ -254,7 +254,7 @@ wiki.related = async (title: string, pageOptions?: pageOptions): Promise<related
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await related(title, pageOptions?.redirect);
+        const response = await related(title, pageOptions?.lang, pageOptions?.redirect);
         return response;
     } catch (error) {
         throw new relatedError(error);
@@ -279,7 +279,7 @@ wiki.media = async (title: string, pageOptions?: pageOptions): Promise<wikiMedia
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await media(title, pageOptions?.redirect);
+        const response = await media(title, pageOptions?.lang, pageOptions?.redirect);
         return response;
     } catch (error) {
         throw new mediaError(error);
@@ -301,7 +301,7 @@ wiki.links = async (title: string, listOptions?: listOptions): Promise<Array<str
         if (listOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await links(title, listOptions);
+        const response = await links(title, listOptions?.lang, listOptions);
         return response;
     } catch (error) {
         throw new linksError(error);
@@ -323,7 +323,7 @@ wiki.references = async (title: string, listOptions?: listOptions): Promise<Arra
         if (listOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await references(title, listOptions);
+        const response = await references(title, listOptions?.lang, listOptions);
         return response;
     } catch (error) {
         throw new linksError(error);
@@ -345,7 +345,7 @@ wiki.coordinates = async (title: string, pageOptions?: pageOptions): Promise<coo
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await coordinates(title, pageOptions?.redirect);
+        const response = await coordinates(title, pageOptions?.lang, pageOptions?.redirect);
         return response;
     } catch (error) {
         throw new coordinatesError(error);
@@ -367,7 +367,7 @@ wiki.langLinks = async (title: string, listOptions?: listOptions): Promise<Array
         if (listOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await langLinks(title, listOptions);
+        const response = await langLinks(title, listOptions?.lang, listOptions);
         return response;
     } catch (error) {
         throw new linksError(error);
@@ -389,7 +389,7 @@ wiki.infobox = async (title: string, pageOptions?: pageOptions): Promise<any> =>
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await infobox(title, pageOptions?.redirect);
+        const response = await infobox(title, pageOptions?.lang, pageOptions?.redirect);
         return response;
     } catch (error) {
         throw new infoboxError(error);
@@ -411,7 +411,7 @@ wiki.tables = async (title: string, pageOptions?: pageOptions): Promise<Array<an
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const response = await tables(title, pageOptions?.redirect);
+        const response = await tables(title, pageOptions?.lang, pageOptions?.redirect);
         return response;
     } catch (error) {
         throw new infoboxError(error);
@@ -426,13 +426,13 @@ wiki.tables = async (title: string, pageOptions?: pageOptions): Promise<Array<an
  *
  * @returns The languages an array of {@link languageResult | languageResult}
  */
-wiki.languages = async (): Promise<Array<languageResult>> => {
+wiki.languages = async (lang?: string): Promise<Array<languageResult>> => {
     try {
         const langParams = {
             'meta': 'siteinfo',
             'siprop': 'languages'
         }
-        const response = await request(langParams);
+        const response = await request(langParams, lang);
         const languages = [];
         for (const lang of response.query.languages) {
             languages.push({ [lang.code]: lang['*'] })
@@ -451,8 +451,8 @@ wiki.languages = async (): Promise<Array<languageResult>> => {
  *
  * @returns The new api endpoint as string
  */
-wiki.setLang = (language: string): string => {
-    const apiUrl = setAPIUrl(language);
+wiki.setLang = (): string => {
+    const apiUrl = setAPIUrl();
     return apiUrl;
 }
 
@@ -476,7 +476,7 @@ wiki.geoSearch = async (latitude: number, longitude: number, geoOptions?: geoOpt
             'gslimit': geoOptions?.limit || 10,
             'gsprop': 'type'
         }
-        const results = await request(geoSearchParams);
+        const results = await request(geoSearchParams, geoOptions?.lang);
         const searchPages = results.query.geosearch;
         return searchPages;
     } catch (error) {
@@ -491,9 +491,10 @@ wiki.geoSearch = async (latitude: number, longitude: number, geoOptions?: geoOpt
  * Use this if you want your user to approve the suggestion before using it
  *
  * @param query - The string to query
+ * @param lang - lang in which wiki to make request to
  * @returns Returns a string or null based on if suggestion is present or not
  */
-wiki.suggest = async (query: string): Promise<string | null> => {
+wiki.suggest = async (query: string, lang?: string): Promise<string | null> => {
     try {
         const suggestParams = {
             'list': 'search',
@@ -501,7 +502,7 @@ wiki.suggest = async (query: string): Promise<string | null> => {
             'srprop': '',
             'srsearch': query
         }
-        const result = await request(suggestParams);
+        const result = await request(suggestParams, lang);
         return result.query?.searchinfo?.suggestion ? result.query?.searchinfo?.suggestion : null;
     } catch (error) {
         throw new searchError(error);
@@ -523,7 +524,7 @@ wiki.onThisDay = async (eventOptions: eventOptions = {}): Promise<eventResult> =
         const mm = (eventOptions.month || getCurrentMonth()).toString().padStart(2, "0")
         const dd = (eventOptions.day || getCurrentDay()).toString().padStart(2, "0")
         const path = `feed/onthisday/${type}/${mm}/${dd}`;
-        const result = await makeRestRequest(path, true);
+        const result = await makeRestRequest(path, eventOptions.lang, true);
         return result;
     } catch (error) {
         throw new eventsError(error);
@@ -545,7 +546,7 @@ wiki.featuredContent = async (fcOptions: fcOptions = {}): Promise<featuredConten
         const mm = (fcOptions.month || getCurrentMonth()).toString().padStart(2, "0")
         const dd = (fcOptions.day || getCurrentDay()).toString().padStart(2, "0")
         const path = `feed/featured/${yyyy}/${mm}/${dd}`;
-        const result = await makeRestRequest(path, true);
+        const result = await makeRestRequest(path, fcOptions.lang, true);
         return result;
     } catch (error) {
         throw new fcError(error);
@@ -558,13 +559,13 @@ wiki.featuredContent = async (fcOptions: fcOptions = {}): Promise<featuredConten
  * @param format - The desired return format
  * @returns Returns content from a random page
  */
-wiki.random = async (format?: randomFormats): Promise<wikiSummary | title | relatedResult | mobileSections | string> => {
+wiki.random = async (format?: randomFormats, lang?: string): Promise<wikiSummary | title | relatedResult | mobileSections | string> => {
     try {
         if(!format){
             format = 'summary';
         }
         const path = `page/random/${format}`;
-        const result = await makeRestRequest(path);
+        const result = await makeRestRequest(path, lang);
         return result;
     } catch (error) {
         throw new wikiError(error);
@@ -583,7 +584,7 @@ wiki.mobileHtml = async (title: string, pageOptions?: pageOptions): Promise<notF
         if (pageOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const result = await mobileHtml(title, pageOptions?.redirect);
+        const result = await mobileHtml(title, pageOptions?.lang,  pageOptions?.redirect);
         return result;
     } catch (error) {
         throw new htmlError(error);
@@ -602,7 +603,7 @@ wiki.mobileHtml = async (title: string, pageOptions?: pageOptions): Promise<notF
         if (pdfOptions?.autoSuggest) {
             title = await setTitleForPage(title);
         }
-        const result = await pdf(title, pdfOptions);
+        const result = await pdf(title, pdfOptions?.lang,  pdfOptions);
         return result;
     } catch (error) {
         throw new pdfError(error);
@@ -646,7 +647,7 @@ wiki.autocompletions = async (query: string, autocompletionOptions?: autocomplet
       redirect: "return"
     };
 
-    const [, autocompletions] = await request(autocompletionsParams, false);
+    const [, autocompletions] = await request(autocompletionsParams, autocompletionOptions?.lang, false);
 
     return autocompletions;
   } catch (error) {
